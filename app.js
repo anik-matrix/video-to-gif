@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const ffmpeg = require("fluent-ffmpeg");
 const {exec} = require('child_process');
 const fs = require('fs');
 const app = express();
@@ -24,7 +25,12 @@ app.post("/upload-convert", upload.single("video"), (req, res) => {
     let fileName = req.file.filename;
     fileName = fileName.split("/").pop().split(".")[0];
     // convert the file into gif
-    exec(`ffmpeg -i ${filePath} -qscale 0 public/files/${fileName}.gif`, (err, stdout, stderr) => {
+
+    ffmpeg(filePath)
+    .outputOption("-vf", "scale=1280:-1:flags=lanczos,fps=20")
+    .save(`public/files/${Date.now()}-aka.gif`);
+
+    /*exec(`ffmpeg -i ${filePath} -qscale 0 public/files/${fileName}.gif`, (err, stdout, stderr) => {
         if(err) {
             console.log(err);
             res.send(err);
@@ -35,7 +41,7 @@ app.post("/upload-convert", upload.single("video"), (req, res) => {
             if(err) console.log(err);
         });
         console.log(Date.now() - startTime);
-    });
+    });*/
     res.send("Works");
 });
 
